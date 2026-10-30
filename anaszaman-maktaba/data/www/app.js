@@ -240,6 +240,8 @@ function renderHome() {
   const saved = store.get('mk.saved', []).filter(r => byCid.has(r.cid));
   $('#saved').replaceChildren(...saved.map(r => pageRow(r)));
   $('#saved-group').hidden = !saved.length;
+  // With nothing in the side column, centre the library under the search box.
+  $('.home-grid').classList.toggle('solo', !recent.length && !saved.length);
 }
 
 // ---------- Search results ----------

@@ -90,7 +90,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 .home-grid { display: grid; grid-template-columns: 1fr; gap: 0 32px; max-width: var(--col); margin: 0 auto; }
 @media (min-width: 900px) {
   .home-grid { grid-template-columns: 1fr 1fr; max-width: none; align-items: start; }
+  .home-grid.solo { grid-template-columns: 1fr; max-width: var(--col); }
 }
+.home-grid.solo .home-side { display: none; }
 .wordmark { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0; font-weight: 400; }
 .wordmark-ur {
   font-family: var(--nastaliq);
