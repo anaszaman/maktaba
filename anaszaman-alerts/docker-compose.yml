@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: anaszaman-alerts_web_1
+      APP_PORT: 8080
+
+  web:
+    image: python:3.12-alpine
+    restart: on-failure
+    working_dir: /app
+    command: ["python", "-u", "alerts.py"]
+    environment:
+      MCP_URL: http://10.21.0.1/mcp
+      STATE_DIR: /state
+      EXTERNAL_DIR: /external
+    volumes:
+      - ${APP_DATA_DIR}/data/app:/app:ro
+      - ${APP_DATA_DIR}/data/state:/state
+      # External drives, read-only, so free space and disconnects can be watched.
+      # rslave: drives plugged in after the app starts still appear inside it.
+      - type: bind
+        source: ${UMBREL_ROOT}/external
+        target: /external
+        read_only: true
+        bind:
+          propagation: rslave

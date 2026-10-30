@@ -1,0 +1,40 @@
+manifestVersion: 1
+id: anaszaman-alerts
+category: automation
+name: Umbrel Alerts
+version: "1.0.0"
+tagline: WhatsApp alerts when your Umbrel needs attention
+icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-alerts/icon.png
+description: >-
+  Umbrel Alerts checks this Umbrel every minute and messages you on WhatsApp, through
+  WhatsApp's agent API, when something needs attention:
+
+
+  - An app breaks, or is stuck installing, updating or starting (and when it recovers)
+
+  - The internal SSD or an external drive passes 90% (critical at 95%)
+
+  - An external drive disconnects or comes back
+
+  - High temperature or memory pressure
+
+  - New app updates and Umbrel notifications
+
+  - The Umbrel restarts, for example after a power cut
+
+
+  Several alerts within a minute arrive as one message. Setup: create a WhatsApp agent,
+  message it once, then paste its API key and an Umbrel MCP token on the app's page.
+developer: Anas Zaman
+website: https://github.com/anaszaman/maktaba
+repo: https://github.com/anaszaman/maktaba
+support: https://github.com/anaszaman/maktaba/issues
+port: 8890
+gallery: []
+releaseNotes: ""
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+submitter: Anas Zaman
+submission: https://github.com/anaszaman/maktaba

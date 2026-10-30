@@ -1,2 +1,6 @@
 .DS_Store
 __pycache__/
+__pycache__/
+# Umbrel Alerts runtime config/state holds the WhatsApp key and MCP token
+anaszaman-alerts/data/state/*
+!anaszaman-alerts/data/state/.keep
