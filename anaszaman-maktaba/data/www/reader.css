@@ -31,11 +31,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* One centred reading column */
-body > .mw-page-container, .mw-page-container, .mw-body, #content, main {
-  max-width: 46rem !important;
-  margin: 0 auto !important;
-  padding: 0 20px !important;
+/* Full-width reading area: 100px each side on desktop, narrower on small screens.
+   Vector's outer wrappers get no padding, and its grid (sidebar/tools columns that don't exist offline) is flattened. */
+.mw-page-container, .mw-page-container-inner, .mw-content-container, #bodyContent, .vector-body, #mw-content-text {
+  max-width: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  float: none !important;
+}
+.mw-page-container-inner, .mw-body, main#content { display: block !important; grid-template-columns: none !important; }
+.mw-body, #content, main {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 clamp(16px, 7vw, 100px) !important;
   background: transparent !important;
   border: 0 !important;
   float: none !important;
@@ -171,10 +182,14 @@ html[data-mk-theme="dark"] .mwe-math-fallback-image-display {
 }
 
 @media (max-width: 520px) {
-  .mw-body, #content, main { padding: 0 16px !important; }
   .mw-body-content, .mw-parser-output { font-size: calc(1.0625rem * var(--mk-scale)) !important; }
   h1, .firstHeading { font-size: calc(1.85rem * var(--mk-scale)) !important; }
-  .infobox, table.infobox { float: none !important; margin: 0 0 1.2em !important; width: 100% !important; max-width: 100% !important; }
+}
+
+/* Narrow windows (phones, small tablets, split screen): stack infoboxes and pictures full width */
+@media (max-width: 760px) {
+  .infobox, table.infobox { float: none !important; clear: both; margin: 0 0 1.2em !important; width: 100% !important; max-width: 100% !important; }
   .mw-parser-output figure[typeof~="mw:File/Thumb"], .mw-parser-output figure[typeof~="mw:File/Frame"],
   .mw-parser-output .thumb.tright, .mw-parser-output .thumb.tleft { float: none !important; max-width: 100% !important; margin: 0 auto 1.2em !important; }
+  .mw-parser-output figure img, .infobox img { margin: 0 auto; }
 }

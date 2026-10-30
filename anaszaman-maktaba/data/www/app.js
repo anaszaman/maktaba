@@ -366,8 +366,39 @@ function readerURL(cid, path) {
   return `/content/${cid}/${encPath(path)}`;
 }
 
-function openInFrame(url) {
+// Hide the article between navigations and reveal it only once our styles apply,
+// so Wikipedia's own layout never flashes before the reading layout.
+function hideFrame() {
+  frame.classList.add('pending');
   $('#reader-loading').classList.add('on');
+  watchFrame();
+}
+function revealFrame() {
+  frame.classList.remove('pending');
+}
+
+// Poll for the iframe's next document and enhance it at DOMContentLoaded, not at load
+// (load waits for every image on the page).
+let watchTimer = null;
+let readyDoc = null;
+function watchFrame() {
+  clearInterval(watchTimer);
+  const started = Date.now();
+  watchTimer = setInterval(() => {
+    let doc;
+    try { doc = frame.contentDocument; } catch { doc = null; }
+    if (doc && doc !== readyDoc && doc.location.href !== 'about:blank' && doc.readyState !== 'loading') {
+      clearInterval(watchTimer);
+      onFrameReady(doc);
+    } else if (Date.now() - started > 15000) {
+      clearInterval(watchTimer);
+      revealFrame();
+    }
+  }, 25);
+}
+
+function openInFrame(url) {
+  hideFrame();
   // replace() keeps the iframe from adding its own history entry on our navigations
   try {
     if (frame.contentWindow && frame.contentWindow.location.href !== 'about:blank') { frame.contentWindow.location.replace(url); return; }
@@ -392,17 +423,21 @@ function applyScale(doc) {
   $('#size-label').textContent = `${Math.round(scale * 100)}%`;
 }
 
+// Returns once the reading stylesheet (if any) has loaded, so the caller can reveal the page.
 function enhance(doc, book) {
-  if (book?.reader && !doc.getElementById('mk-reader-css')) {
+  setFrameTheme(doc);
+  doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+  if (!book?.reader || doc.getElementById('mk-reader-css')) { applyScale(doc); return Promise.resolve(); }
+  return new Promise(resolve => {
     const link = doc.createElement('link');
     link.id = 'mk-reader-css';
     link.rel = 'stylesheet';
     link.href = '/reader.css';
+    link.onload = link.onerror = () => resolve();
     doc.head.append(link);
-  }
-  setFrameTheme(doc);
-  applyScale(doc);
-  doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+    applyScale(doc);
+    setTimeout(resolve, 3000); // never leave the page hidden
+  });
 }
 
 function buildToc(doc) {
@@ -448,12 +483,13 @@ function updateSaveButton() {
   $('#save').setAttribute('aria-label', on ? 'Remove from saved' : 'Save');
 }
 
-frame.addEventListener('load', () => {
-  $('#reader-loading').classList.remove('on');
-  let doc, loc;
-  try { doc = frame.contentDocument; loc = frame.contentWindow.location; } catch { return; }
+function onFrameReady(doc) {
+  readyDoc = doc;
+  // Any navigation inside the article (link clicks, back/forward) hides it again until enhanced.
+  doc.defaultView?.addEventListener('pagehide', hideFrame);
+  const loc = doc.location;
   const m = loc.pathname.match(/^\/content\/([^/]+)\/(.*)$/);
-  if (!m || !doc) return;
+  if (!m) { revealFrame(); return; }
   const [, cid, rawPath] = m;
   const path = encPath(rawPath);
   const book = byCid.get(cid);
@@ -467,10 +503,19 @@ frame.addEventListener('load', () => {
   $('#reader-title').dir = isRtlText(title) ? 'rtl' : 'auto';
   $('#reader-book').textContent = book?.label || '';
   document.title = `${title} – Maktaba`;
-  enhance(doc, book);
-  buildToc(doc);
+  enhance(doc, book).then(() => {
+    revealFrame();
+    buildToc(doc);
+  });
   addRecent(current);
   updateSaveButton();
+}
+
+frame.addEventListener('load', () => {
+  $('#reader-loading').classList.remove('on');
+  let doc;
+  try { doc = frame.contentDocument; } catch { revealFrame(); return; }
+  if (doc && doc !== readyDoc && doc.location.href !== 'about:blank') { clearInterval(watchTimer); onFrameReady(doc); }
 });
 
 // Theme: follows the device until the toggle is used, then the stored choice wins.

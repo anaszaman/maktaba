@@ -2,7 +2,7 @@ manifestVersion: 1
 id: anaszaman-maktaba
 category: files
 name: Maktaba
-version: "1.0.2"
+version: "1.0.3"
 tagline: A calm, modern way to read your Kiwix library
 icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-maktaba/icon.png
 description: >-
@@ -25,7 +25,7 @@ repo: https://github.com/anaszaman/maktaba
 support: https://github.com/anaszaman/maktaba/issues
 port: 8899
 gallery: []
-releaseNotes: "Library centres under the search box when there is nothing to continue reading."
+releaseNotes: "Articles appear already styled (no layout jump on refresh), full-width reading area, better layout on narrow screens, theme button in the top-right corner."
 dependencies:
   - kiwix
 path: ""
