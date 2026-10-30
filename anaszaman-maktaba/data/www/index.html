@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Maktaba</title>
+  <meta name="description" content="Your offline library: Wikipedia, health, repair guides and lessons, without the internet.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Maktaba">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-180.png">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- Home -->
+  <main id="main">
+    <section class="view view-home" id="view-home" hidden>
+      <header class="home-head">
+        <h1 class="wordmark"><span class="wordmark-ur" lang="ur" dir="rtl">مکتبہ</span><span class="wordmark-en">Maktaba</span></h1>
+        <p class="home-sub" id="home-sub">Your library, without the internet.</p>
+      </header>
+
+      <form class="search" id="home-search" role="search" autocomplete="off">
+        <label class="visually-hidden" for="home-q">Search the library</label>
+        <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75"/><path d="m13 13 4.25 4.25"/></svg>
+        <input id="home-q" class="search-input" type="search" name="q" placeholder="Search" spellcheck="false"
+               role="combobox" aria-expanded="false" aria-controls="home-suggest" aria-autocomplete="list" enterkeyhint="search">
+        <div class="suggest" id="home-suggest" role="listbox" hidden></div>
+      </form>
+
+      <div class="home-actions">
+        <button type="button" class="link-button" id="surprise">Open a random article</button>
+      </div>
+
+      <section class="group" aria-labelledby="shelf-h">
+        <h2 class="group-title" id="shelf-h">Library</h2>
+        <ul class="list" id="shelf"></ul>
+      </section>
+
+      <section class="group" aria-labelledby="recent-h" id="recent-group" hidden>
+        <div class="group-head">
+          <h2 class="group-title" id="recent-h">Continue reading</h2>
+          <button type="button" class="link-button small" id="clear-recent">Clear</button>
+        </div>
+        <ul class="list compact" id="recent"></ul>
+      </section>
+
+      <section class="group" aria-labelledby="saved-h" id="saved-group" hidden>
+        <h2 class="group-title" id="saved-h">Saved</h2>
+        <ul class="list compact" id="saved"></ul>
+      </section>
+    </section>
+
+    <!-- Search results -->
+    <section class="view view-results" id="view-results" hidden>
+      <header class="bar">
+        <a class="bar-btn" href="#/" aria-label="Home">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6"/></svg>
+        </a>
+        <form class="search search-bar" id="bar-search" role="search" autocomplete="off">
+          <label class="visually-hidden" for="bar-q">Search the library</label>
+          <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75"/><path d="m13 13 4.25 4.25"/></svg>
+          <input id="bar-q" class="search-input" type="search" name="q" placeholder="Search" spellcheck="false"
+                 role="combobox" aria-expanded="false" aria-controls="bar-suggest" aria-autocomplete="list" enterkeyhint="search">
+          <div class="suggest" id="bar-suggest" role="listbox" hidden></div>
+        </form>
+      </header>
+      <div class="results-wrap">
+        <nav class="segmented" id="filters" aria-label="Filter by book"></nav>
+        <section class="group" id="titles-group" hidden aria-labelledby="titles-h">
+          <h2 class="group-title" id="titles-h">Matching titles</h2>
+          <ul class="list compact" id="titles"></ul>
+        </section>
+        <section class="group" aria-live="polite">
+          <h2 class="group-title" id="results-h">Articles</h2>
+          <ol class="results" id="results"></ol>
+          <p class="status" id="results-status"></p>
+          <button type="button" class="pill" id="more" hidden>Show more results</button>
+        </section>
+      </div>
+    </section>
+
+    <!-- Reader -->
+    <section class="view view-reader" id="view-reader" hidden>
+      <header class="bar bar-reader">
+        <button type="button" class="bar-btn" id="back" aria-label="Back">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6"/></svg>
+        </button>
+        <a class="bar-btn" href="#/" aria-label="Home">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 9.25 10 3.75l6.5 5.5M5.5 8v8.25h9V8"/></svg>
+        </a>
+        <div class="bar-title">
+          <span class="bar-title-main" id="reader-title">Loading</span>
+          <span class="bar-title-sub" id="reader-book"></span>
+        </div>
+        <button type="button" class="bar-btn" id="find" aria-label="Search">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75"/><path d="m13 13 4.25 4.25"/></svg>
+        </button>
+        <button type="button" class="bar-btn" id="toc-btn" aria-label="Contents" aria-expanded="false" aria-controls="sheet">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5.5h9.5M7 10h9.5M7 14.5h9.5"/><circle cx="3.75" cy="5.5" r=".6"/><circle cx="3.75" cy="10" r=".6"/><circle cx="3.75" cy="14.5" r=".6"/></svg>
+        </button>
+        <button type="button" class="bar-btn" id="save" aria-label="Save" aria-pressed="false">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 3.5h9v13l-4.5-3.25-4.5 3.25z"/></svg>
+        </button>
+      </header>
+      <div class="reader-frame">
+        <iframe id="frame" title="Article" referrerpolicy="same-origin"></iframe>
+        <div class="reader-loading" id="reader-loading" aria-hidden="true"></div>
+      </div>
+      <aside class="sheet" id="sheet" hidden aria-label="Contents and display">
+        <div class="sheet-inner">
+          <div class="sheet-head">
+            <h2 class="sheet-title">Contents</h2>
+            <button type="button" class="link-button" id="sheet-close">Done</button>
+          </div>
+          <div class="text-size" role="group" aria-label="Text size">
+            <button type="button" class="pill" data-size="-1" aria-label="Smaller text">A</button>
+            <span class="text-size-label" id="size-label">Text size</span>
+            <button type="button" class="pill large" data-size="1" aria-label="Larger text">A</button>
+          </div>
+          <ol class="toc" id="toc"></ol>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <template id="tpl-book">
+    <li><a class="row">
+      <img class="row-icon" alt="" width="36" height="36" loading="lazy">
+      <span class="row-text"><span class="row-title"></span><span class="row-sub"></span></span>
+      <span class="row-meta"></span>
+      <svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4 6 6-6 6"/></svg>
+    </a></li>
+  </template>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+manifestVersion: 1
+id: anaszaman-maktaba
+category: files
+name: Maktaba
+version: "1.0.0"
+tagline: A calm, modern way to read your Kiwix library
+icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-maktaba/icon.png
+description: >-
+  Maktaba (مکتبہ, "library") is a minimal reader for the offline books you keep in Kiwix:
+  Wikipedia, WikiMed, iFixit, Khan Academy and any other ZIM files.
+
+
+  - One search box for every book, with instant title suggestions
+  - Full-text results you can filter by book
+  - A clean reading view with contents, text size and automatic dark mode
+  - Urdu and other right-to-left books shown right-to-left
+  - Continue reading and saved articles, kept in your browser
+
+
+  Maktaba reads from the Kiwix app on this Umbrel and never uses the internet.
+  Add new ZIM files to Kiwix, restart Kiwix, and they appear here.
+developer: Anas Zaman
+website: https://github.com/anaszaman/maktaba
+repo: https://github.com/anaszaman/maktaba
+support: https://github.com/anaszaman/maktaba/issues
+port: 8899
+gallery: []
+releaseNotes: ""
+dependencies:
+  - kiwix
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+submitter: Anas Zaman
+submission: https://github.com/anaszaman/maktaba
