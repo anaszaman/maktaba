@@ -14,6 +14,7 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icon-180.png">
   <link rel="stylesheet" href="/app.css">
+  <script>try { var t = JSON.parse(localStorage.getItem("mk.theme")); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -21,9 +22,12 @@
   <!-- Home -->
   <main id="main">
     <section class="view view-home" id="view-home" hidden>
+      <button type="button" class="bar-btn theme-toggle home-theme" data-theme-toggle aria-label="Switch to dark mode">
+        <svg class="i-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.25 12.4A6.75 6.75 0 0 1 7.6 3.75a6.75 6.75 0 1 0 8.65 8.65z"/></svg>
+        <svg class="i-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 1.75v1.5M10 16.75v1.5M1.75 10h1.5M16.75 10h1.5M4.17 4.17l1.06 1.06M14.77 14.77l1.06 1.06M4.17 15.83l1.06-1.06M14.77 5.23l1.06-1.06"/></svg>
+      </button>
       <header class="home-head">
-        <h1 class="wordmark"><span class="wordmark-ur" lang="ur" dir="rtl">مکتبہ</span><span class="wordmark-en">Maktaba</span></h1>
-        <p class="home-sub" id="home-sub">Your library, without the internet.</p>
+        <h1 class="wordmark" aria-label="Maktaba"><span class="wordmark-ur" lang="ur" dir="rtl">مکتبہ</span></h1>
       </header>
 
       <form class="search" id="home-search" role="search" autocomplete="off">
@@ -38,23 +42,27 @@
         <button type="button" class="link-button" id="surprise">Open a random article</button>
       </div>
 
-      <section class="group" aria-labelledby="shelf-h">
-        <h2 class="group-title" id="shelf-h">Library</h2>
-        <ul class="list" id="shelf"></ul>
-      </section>
+      <div class="home-grid">
+        <section class="group" aria-labelledby="shelf-h">
+          <h2 class="group-title" id="shelf-h">Library</h2>
+          <ul class="list" id="shelf"></ul>
+        </section>
 
-      <section class="group" aria-labelledby="recent-h" id="recent-group" hidden>
-        <div class="group-head">
-          <h2 class="group-title" id="recent-h">Continue reading</h2>
-          <button type="button" class="link-button small" id="clear-recent">Clear</button>
+        <div class="home-side">
+          <section class="group" aria-labelledby="recent-h" id="recent-group" hidden>
+            <div class="group-head">
+              <h2 class="group-title" id="recent-h">Continue reading</h2>
+              <button type="button" class="link-button small" id="clear-recent">Clear</button>
+            </div>
+            <ul class="list compact" id="recent"></ul>
+          </section>
+
+          <section class="group" aria-labelledby="saved-h" id="saved-group" hidden>
+            <h2 class="group-title" id="saved-h">Saved</h2>
+            <ul class="list compact" id="saved"></ul>
+          </section>
         </div>
-        <ul class="list compact" id="recent"></ul>
-      </section>
-
-      <section class="group" aria-labelledby="saved-h" id="saved-group" hidden>
-        <h2 class="group-title" id="saved-h">Saved</h2>
-        <ul class="list compact" id="saved"></ul>
-      </section>
+      </div>
     </section>
 
     <!-- Search results -->
@@ -104,6 +112,10 @@
         </button>
         <button type="button" class="bar-btn" id="toc-btn" aria-label="Contents" aria-expanded="false" aria-controls="sheet">
           <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5.5h9.5M7 10h9.5M7 14.5h9.5"/><circle cx="3.75" cy="5.5" r=".6"/><circle cx="3.75" cy="10" r=".6"/><circle cx="3.75" cy="14.5" r=".6"/></svg>
+        </button>
+        <button type="button" class="bar-btn theme-toggle" data-theme-toggle aria-label="Switch to dark mode">
+          <svg class="i-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.25 12.4A6.75 6.75 0 0 1 7.6 3.75a6.75 6.75 0 1 0 8.65 8.65z"/></svg>
+          <svg class="i-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 1.75v1.5M10 16.75v1.5M1.75 10h1.5M16.75 10h1.5M4.17 4.17l1.06 1.06M14.77 14.77l1.06 1.06M4.17 15.83l1.06-1.06M14.77 5.23l1.06-1.06"/></svg>
         </button>
         <button type="button" class="bar-btn" id="save" aria-label="Save" aria-pressed="false">
           <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 3.5h9v13l-4.5-3.25-4.5 3.25z"/></svg>

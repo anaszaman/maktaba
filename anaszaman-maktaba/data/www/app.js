@@ -233,7 +233,6 @@ function renderHome() {
   if (total) {
     const words = new Intl.NumberFormat('en', { notation: 'compact', compactDisplay: 'long', maximumFractionDigits: 1 }).format(total);
     $('#home-q').placeholder = `Search ${words} articles`;
-    $('#home-sub').textContent = `${books.length} books, all on this server. Nothing here needs the internet.`;
   }
   const recent = store.get('mk.recent', []).filter(r => byCid.has(r.cid)).slice(0, 5);
   $('#recent').replaceChildren(...recent.map(r => pageRow(r)));
@@ -358,6 +357,7 @@ async function renderResults(q, cid) {
 const frame = $('#frame');
 let current = null;
 let suppressRoute = false;
+let openingHome = null; // cid whose front page was requested, so it is named after the book
 
 function readerURL(cid, path) {
   if (path === '__random') return `/random?content=${encodeURIComponent(cid)}`;
@@ -376,6 +376,7 @@ function openInFrame(url) {
 function renderReader(cid, path) {
   const book = byCid.get(cid);
   $('#reader-book').textContent = book?.label || '';
+  openingHome = path === '' ? cid : null;
   const want = readerURL(cid, path);
   let have = '';
   try { have = frame.contentWindow.location.pathname; } catch { /* ignore */ }
@@ -456,7 +457,9 @@ frame.addEventListener('load', () => {
   const book = byCid.get(cid);
   const hash = `#/read/${cid}/${path}`;
   if (location.hash !== hash) { suppressRoute = true; history.replaceState(null, '', hash); suppressRoute = false; }
-  const title = (doc.title || decodeURIComponent(rawPath).replace(/_/g, ' ') || book?.label || '').trim();
+  const isHome = openingHome === cid;
+  openingHome = null;
+  const title = (isHome && book ? book.label : (doc.title || decodeURIComponent(rawPath).replace(/_/g, ' ') || book?.label || '')).trim();
   current = { cid, path, title };
   $('#reader-title').textContent = title;
   $('#reader-title').dir = isRtlText(title) ? 'rtl' : 'auto';
@@ -468,18 +471,30 @@ frame.addEventListener('load', () => {
   updateSaveButton();
 });
 
+// Theme: follows the device until the toggle is used, then the stored choice wins.
+const isDark = () => { const t = store.get('mk.theme', null); return t ? t === 'dark' : darkMQ.matches; };
+
+function applyTheme() {
+  const t = store.get('mk.theme', null);
+  const root = document.documentElement;
+  if (t) root.dataset.theme = t; else delete root.dataset.theme;
+  const dark = isDark();
+  root.dataset.mkDark = dark ? '1' : '0';
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode'));
+  try { setFrameTheme(frame.contentDocument); } catch { /* no article open */ }
+}
+
 // Our variables plus Vector 2022's own night-mode switch.
 function setFrameTheme(doc) {
+  if (!doc?.documentElement) return;
   const root = doc.documentElement;
-  const dark = darkMQ.matches;
+  const dark = isDark();
   root.dataset.mkTheme = dark ? 'dark' : 'light';
   root.classList.remove('skin-theme-clientpref-os', 'skin-theme-clientpref-day', 'skin-theme-clientpref-night');
   root.classList.add(dark ? 'skin-theme-clientpref-night' : 'skin-theme-clientpref-day');
 }
 
-darkMQ.addEventListener('change', () => {
-  try { setFrameTheme(frame.contentDocument); } catch { /* ignore */ }
-});
+darkMQ.addEventListener('change', applyTheme);
 
 function toggleSheet(open) {
   const sheet = $('#sheet');
@@ -543,6 +558,11 @@ $('#surprise').addEventListener('click', () => {
   const wiki = books.find(b => b.name === 'wikipedia_en_all') || books[0];
   if (wiki) location.hash = `#/read/${wiki.cid}/__random`;
 });
+document.querySelectorAll('[data-theme-toggle]').forEach(btn => btn.addEventListener('click', () => {
+  store.set('mk.theme', isDark() ? 'light' : 'dark');
+  applyTheme();
+}));
+applyTheme();
 addEventListener('hashchange', route);
 
 loadCatalog().then(route).catch(err => {

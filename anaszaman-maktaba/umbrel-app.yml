@@ -2,7 +2,7 @@ manifestVersion: 1
 id: anaszaman-maktaba
 category: files
 name: Maktaba
-version: "1.0.0"
+version: "1.0.1"
 tagline: A calm, modern way to read your Kiwix library
 icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-maktaba/icon.png
 description: >-
@@ -25,7 +25,7 @@ repo: https://github.com/anaszaman/maktaba
 support: https://github.com/anaszaman/maktaba/issues
 port: 8899
 gallery: []
-releaseNotes: ""
+releaseNotes: "Light/dark toggle, two-column home on wide screens, simpler header."
 dependencies:
   - kiwix
 path: ""

@@ -38,6 +38,22 @@
     --shadow: 0 12px 34px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .06);
   }
 }
+/* Explicit choice from the theme toggle wins over the system setting */
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --ink: #f5f5f7;
+  --muted: #98989d;
+  --hairline: #38383a;
+  --accent: #8aa4ff;
+  --accent-soft: rgba(138, 164, 255, .16);
+  --mark: rgba(138, 164, 255, .22);
+  --bar: rgba(22, 22, 24, .78);
+  --shadow: 0 12px 34px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .06);
+  color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -61,11 +77,20 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 
 /* ---------- Home ---------- */
 .view-home {
-  max-width: var(--col);
+  position: relative;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: max(12vh, 56px) 16px 64px;
+  padding: max(10vh, 48px) 16px 64px;
 }
-.home-head { text-align: center; margin-bottom: 28px; }
+.view-home > .home-head, .view-home > .search, .view-home > .home-actions { max-width: var(--col); margin-left: auto; margin-right: auto; }
+.home-head { text-align: center; margin-bottom: 20px; }
+.home-theme { position: absolute; top: 12px; right: 12px; }
+
+/* Library and Continue reading side by side on wide screens, stacked on phones */
+.home-grid { display: grid; grid-template-columns: 1fr; gap: 0 32px; max-width: var(--col); margin: 0 auto; }
+@media (min-width: 900px) {
+  .home-grid { grid-template-columns: 1fr 1fr; max-width: none; align-items: start; }
+}
 .wordmark { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0; font-weight: 400; }
 .wordmark-ur {
   font-family: var(--nastaliq);
@@ -74,12 +99,6 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
   letter-spacing: 0;
   padding-bottom: .32em;   /* Nastaliq descends far below the baseline */
 }
-.wordmark-en {
-  font: 600 15px/1.2 var(--display);
-  letter-spacing: .02em;
-  color: var(--muted);
-}
-.home-sub { margin: 14px 0 0; color: var(--muted); font-size: 15px; }
 
 /* ---------- Search field + suggestions ---------- */
 .search { position: relative; }
@@ -187,6 +206,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 .bar-btn svg { width: 22px; height: 22px; }
 .bar-btn:hover { background: var(--accent-soft); }
 .bar-btn[aria-pressed="true"] svg { fill: currentColor; }
+.theme-toggle .i-sun { display: none; }
+:root[data-mk-dark="1"] .theme-toggle .i-sun { display: block; }
+:root[data-mk-dark="1"] .theme-toggle .i-moon { display: none; }
 .search-bar { flex: 1; max-width: var(--col); margin: 0 auto; }
 .search-bar .search-input { height: 40px; font-size: 16px; border-radius: 10px; }
 .search-bar .search-icon { width: 17px; height: 17px; margin-top: -8.5px; left: 13px; }
