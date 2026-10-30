@@ -9,7 +9,7 @@ import os
 import sys
 
 WWW = os.path.join(os.path.dirname(os.path.abspath(__file__)), "anaszaman-maktaba", "data", "www")
-STATIC = {"/app.js", "/app.css", "/reader.css", "/manifest.webmanifest", "/icon.svg", "/icon-180.png", "/icon-512.png"}
+STATIC = {"/app.js", "/app.css", "/reader.css", "/khan.css", "/manifest.webmanifest", "/icon.svg", "/icon-180.png", "/icon-512.png"}
 UPSTREAM = ("127.0.0.1", int(os.environ.get("KIWIX_PORT", "18080")))
 
 

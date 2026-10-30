@@ -2,7 +2,7 @@ manifestVersion: 1
 id: anaszaman-maktaba
 category: files
 name: Maktaba
-version: "1.0.3"
+version: "1.0.4"
 tagline: A calm, modern way to read your Kiwix library
 icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-maktaba/icon.png
 description: >-
@@ -25,7 +25,7 @@ repo: https://github.com/anaszaman/maktaba
 support: https://github.com/anaszaman/maktaba/issues
 port: 8899
 gallery: []
-releaseNotes: "Articles appear already styled (no layout jump on refresh), full-width reading area, better layout on narrow screens, theme button in the top-right corner."
+releaseNotes: "Modern Khan Academy pages: rounded topic tiles, video lessons with large thumbnails, a full-width player, a quiet breadcrumb, dark mode."
 dependencies:
   - kiwix
 path: ""

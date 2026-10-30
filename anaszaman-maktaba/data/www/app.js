@@ -6,12 +6,20 @@ const $ = (sel, root = document) => root.querySelector(sel);
 
 // Friendly names for the books we know; anything else falls back to the catalog's own title.
 const KNOWN = {
-  wikipedia_en_all:      { label: 'Wikipedia',     sub: 'Encyclopedia',          order: 1, reader: true },
-  wikipedia_en_medicine: { label: 'WikiMed',       sub: 'Health and medicine',   order: 2, reader: true },
+  wikipedia_en_all:      { label: 'Wikipedia',     sub: 'Encyclopedia',          order: 1, css: '/reader.css' },
+  wikipedia_en_medicine: { label: 'WikiMed',       sub: 'Health and medicine',   order: 2, css: '/reader.css' },
   ifixit_en_all:         { label: 'iFixit',        sub: 'Repair guides',         order: 3 },
-  khanacademy_en_all:    { label: 'Khan Academy',  sub: 'Lessons and practice',  order: 4 },
-  wikipedia_ur_all:      { label: 'ویکیپیڈیا',     sub: 'Urdu encyclopedia',     order: 5, reader: true },
+  khanacademy_en_all:    { label: 'Khan Academy',  sub: 'Lessons and practice',  order: 4, css: '/khan.css', tweak: khanTweaks },
+  wikipedia_ur_all:      { label: 'ویکیپیڈیا',     sub: 'Urdu encyclopedia',     order: 5, css: '/reader.css' },
 };
+// Khan Academy pages: shorten the long root name, and mark the licence line so it can be quiet.
+function khanTweaks(doc) {
+  const long = /^Khan Academy \(.*\)$/;
+  doc.querySelectorAll('.breadcrumb-item a, h1').forEach(el => { if (long.test(el.textContent.trim())) el.textContent = 'Khan Academy'; });
+  doc.querySelectorAll('.container > p').forEach(p => { if (/^License:/.test(p.textContent.trim())) p.classList.add('mk-license'); });
+  doc.querySelectorAll('.children .card').forEach(card => { if (card.querySelector('img')) card.classList.add('mk-media'); });
+}
+
 const RTL_LANGS = new Set(['urd', 'ara', 'fas', 'pus', 'snd']);
 const SIZES = [0.85, 1, 1.12, 1.25, 1.4];
 
@@ -64,7 +72,8 @@ async function loadCatalog() {
       label: known.label || text('title'),
       sub: known.sub || text('summary'),
       order: known.order || 99,
-      reader: Boolean(known.reader),
+      css: known.css || null,
+      tweak: known.tweak || null,
       rtl: RTL_LANGS.has(lang),
       ftindex: !/_ftindex:no/.test(tags),
       articles: Number(text('articleCount')) || 0,
@@ -427,12 +436,13 @@ function applyScale(doc) {
 function enhance(doc, book) {
   setFrameTheme(doc);
   doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
-  if (!book?.reader || doc.getElementById('mk-reader-css')) { applyScale(doc); return Promise.resolve(); }
+  try { book?.tweak?.(doc); } catch { /* a book's own markup changed; its stylesheet still applies */ }
+  if (!book?.css || doc.getElementById('mk-reader-css')) { applyScale(doc); return Promise.resolve(); }
   return new Promise(resolve => {
     const link = doc.createElement('link');
     link.id = 'mk-reader-css';
     link.rel = 'stylesheet';
-    link.href = '/reader.css';
+    link.href = book.css;
     link.onload = link.onerror = () => resolve();
     doc.head.append(link);
     applyScale(doc);
@@ -497,7 +507,8 @@ function onFrameReady(doc) {
   if (location.hash !== hash) { suppressRoute = true; history.replaceState(null, '', hash); suppressRoute = false; }
   const isHome = openingHome === cid;
   openingHome = null;
-  const title = (isHome && book ? book.label : (doc.title || decodeURIComponent(rawPath).replace(/_/g, ' ') || book?.label || '')).trim();
+  const title = (isHome && book ? book.label : (doc.title || decodeURIComponent(rawPath).replace(/_/g, ' ') || book?.label || '')).trim()
+    .replace(/^Khan Academy \(.*\)$/, 'Khan Academy');
   current = { cid, path, title };
   $('#reader-title').textContent = title;
   $('#reader-title').dir = isRtlText(title) ? 'rtl' : 'auto';
