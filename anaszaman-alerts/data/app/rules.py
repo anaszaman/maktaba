@@ -1,13 +1,24 @@
 """Pure alert rules: compare what the Umbrel looks like now with the last check.
 
 No I/O here so it unit-tests on any machine. Each rule returns alerts plus the state to keep.
+
+Alert keys: a keyed non-resolved alert opens an incident on the push hub and repeats of it are
+ignored until a "resolved" with the same key closes it. One-off events (restart, new updates,
+Umbrel notifications) therefore get a key unique to that occurrence, and every key must be
+stable across restarts (no built-in hash(), which is randomised per process).
 """
+import hashlib
 
 NORMAL = {"ready", "running", "stopped"}
 TRANSITIONAL = {"starting", "stopping", "restarting", "installing", "updating", "uninstalling"}
 STUCK_AFTER = 15 * 60          # seconds an app may sit in a transitional state
 STORAGE_WARN, STORAGE_CRIT, STORAGE_CLEAR = 0.90, 0.95, 0.85
 MEMORY_WARN, MEMORY_CLEAR = 0.95, 0.85
+
+
+def stable_key(text):
+    """Short deterministic id for a piece of text (same text, same id, in any process)."""
+    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
 
 
 def alert(severity, key, title, body=""):
@@ -25,7 +36,7 @@ def evaluate(prev, now, at):
     last_up, last_seen = prev.get("uptime"), prev.get("seen_at")
     if not first and up is not None and last_up is not None and up < last_up:
         gone = f" after about {fmt_duration(at - last_seen - up)} offline" if last_seen and at - last_seen - up > 90 else ""
-        out.append(alert("info", "restart", "Umbrel restarted", f"It's back online{gone}."))
+        out.append(alert("info", f"restart:{int(at)}", "Umbrel restarted", f"It's back online{gone}."))
     nxt["uptime"], nxt["seen_at"] = up, at
 
     # --- Apps ---
@@ -56,7 +67,7 @@ def evaluate(prev, now, at):
     fresh = updates - set(prev.get("updates", []))
     if fresh and not first:
         listed = ", ".join(sorted(names.get(a, a) for a in fresh))
-        out.append(alert("info", "updates", "App updates available", listed))
+        out.append(alert("info", "updates:" + stable_key(",".join(sorted(fresh))), "App updates available", listed))
     nxt["updates"] = sorted(updates)
 
     # --- Storage: internal disk and every external drive ---
@@ -110,21 +121,10 @@ def evaluate(prev, now, at):
     if not first:
         for n in notes:
             if n not in seen:
-                out.append(alert("info", f"note:{hash(n)}", "Umbrel", n))
+                out.append(alert("info", "note:" + stable_key(n), "Umbrel", n))
     nxt["notifications"] = notes[-200:]
 
     return out, nxt
-
-
-MARK = {"critical": "🔴", "warning": "🟠", "resolved": "🟢", "info": "ℹ️"}
-
-
-def format_alerts(alerts):
-    """One alert as-is; a burst as one message with a count, like the Remantis outbox."""
-    def one(a):
-        return f"{MARK[a['severity']]} *{a['title']}*" + (f"\n{a['body']}" if a.get("body") else "")
-    text = one(alerts[0]) if len(alerts) == 1 else "\n\n".join([f"🚨 *{len(alerts)} alerts*"] + [one(a) for a in alerts])
-    return text if len(text) <= 4096 else text[:4080] + "\n…"
 
 
 def fmt_bytes(n):

@@ -2,12 +2,12 @@ manifestVersion: 1
 id: anaszaman-alerts
 category: automation
 name: Umbrel Alerts
-version: "1.0.0"
-tagline: WhatsApp alerts when your Umbrel needs attention
+version: "1.1.0"
+tagline: Push alerts to your phone when your Umbrel needs attention
 icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-alerts/icon.png
 description: >-
-  Umbrel Alerts checks this Umbrel every minute and messages you on WhatsApp, through
-  WhatsApp's agent API, when something needs attention:
+  Umbrel Alerts checks this Umbrel every minute and sends an alert to your push hub,
+  which delivers it to your phone, when something needs attention:
 
 
   - An app breaks, or is stuck installing, updating or starting (and when it recovers)
@@ -23,15 +23,22 @@ description: >-
   - The Umbrel restarts, for example after a power cut
 
 
-  Several alerts within a minute arrive as one message. Setup: create a WhatsApp agent,
-  message it once, then paste its API key and an Umbrel MCP token on the app's page.
+  Each check also posts a status snapshot (apps, storage, temperature, memory, uptime,
+  updates) that doubles as a heartbeat, so the hub can tell you if this Umbrel goes quiet.
+  Alerts that can't be delivered are kept and retried every minute. Setup: paste your push
+  hub URL and secret, and an Umbrel MCP token, on the app's page.
 developer: Anas Zaman
 website: https://github.com/anaszaman/maktaba
 repo: https://github.com/anaszaman/maktaba
 support: https://github.com/anaszaman/maktaba/issues
 port: 8890
 gallery: []
-releaseNotes: ""
+releaseNotes: >-
+  Alerts now go to a push hub instead of WhatsApp. After updating, open the app and enter
+  your push hub URL and push secret; the MCP token you saved before is kept. Each check
+  also posts a status snapshot for your phone's status screen, including when the Umbrel
+  can't be read. Undelivered alerts are kept and retried until the hub accepts them.
+  Messages still queued by the previous version are discarded.
 dependencies: []
 path: ""
 defaultUsername: ""

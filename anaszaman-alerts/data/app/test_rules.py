@@ -1,4 +1,8 @@
+import os
+import subprocess
+import sys
 import unittest
+
 import rules
 
 
@@ -55,13 +59,14 @@ class Rules(unittest.TestCase):
 
     def test_restart_detected_from_uptime(self):
         alerts, _ = self.run_pair(snap(uptime=50000), snap(uptime=30), t=1000, dt=900)
-        self.assertEqual(alerts[0]["key"], "restart")
+        self.assertTrue(alerts[0]["key"].startswith("restart:"))
         self.assertIn("offline", alerts[0]["body"])
 
     def test_only_new_updates_and_notifications(self):
         _, s = rules.evaluate({}, snap(updates=["jellyfin"], notifications=["old"]), 0)
         alerts, s = rules.evaluate(s, snap(updates=["jellyfin", "kiwix"], notifications=["old", "Backup failed"]), 60)
-        self.assertEqual({a["key"] for a in alerts}, {"updates", alerts[1]["key"]})
+        self.assertTrue(alerts[0]["key"].startswith("updates:"))
+        self.assertEqual(alerts[1]["key"], "note:" + rules.stable_key("Backup failed"))
         self.assertEqual(alerts[0]["body"], "Kiwix")
         quiet, _ = rules.evaluate(s, snap(updates=["jellyfin", "kiwix"], notifications=["old", "Backup failed"]), 120)
         self.assertEqual(quiet, [])
@@ -72,12 +77,29 @@ class Rules(unittest.TestCase):
         ok, _ = rules.evaluate(s, snap(), 9000)
         self.assertEqual({a["severity"] for a in ok}, {"resolved"})
 
-    def test_burst_formatting(self):
-        one = rules.format_alerts([rules.alert("warning", "k", "Title", "Body")])
-        self.assertEqual(one, "🟠 *Title*\nBody")
-        many = rules.format_alerts([rules.alert("info", "a", "A"), rules.alert("critical", "b", "B")])
-        self.assertTrue(many.startswith("🚨 *2 alerts*"))
+    def test_note_key_is_deterministic_for_the_same_text(self):
+        self.assertEqual(rules.stable_key("Backup failed"), rules.stable_key("Backup failed"))
+        self.assertNotEqual(rules.stable_key("Backup failed"), rules.stable_key("Backup failed!"))
+        self.assertRegex(rules.stable_key("x"), r"^[0-9a-f]{12}$")
 
+    def test_note_key_is_stable_across_processes(self):
+        # hash() would differ between these two runs; the alert key must not.
+        code = ("import rules; _, s = rules.evaluate({}, %r, 0); "
+                "a, _ = rules.evaluate(s, dict(%r, notifications=['Backup failed']), 60); print(a[0]['key'])")
+        keys = set()
+        for seed in ("1", "2"):
+            out = subprocess.run([sys.executable, "-c", code % (snap(), snap())], capture_output=True, text=True,
+                                 cwd=os.path.dirname(os.path.abspath(__file__)), check=True,
+                                 env=dict(os.environ, PYTHONHASHSEED=seed))
+            keys.add(out.stdout.strip())
+        self.assertEqual(keys, {"note:" + rules.stable_key("Backup failed")})
+
+    def test_repeat_events_get_distinct_keys(self):
+        _, s = rules.evaluate({}, snap(uptime=500), 0)
+        first, s = rules.evaluate(s, snap(uptime=10), 100)
+        _, s = rules.evaluate(s, snap(uptime=900), 1000)
+        second, _ = rules.evaluate(s, snap(uptime=10), 2000)
+        self.assertNotEqual(first[0]["key"], second[0]["key"])
 
 if __name__ == "__main__":
     unittest.main()
