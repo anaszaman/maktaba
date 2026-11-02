@@ -26,6 +26,7 @@ STATE_DIR = os.environ.get("STATE_DIR", "/state")
 EXTERNAL = os.environ.get("EXTERNAL_DIR", "/external")
 MCP_URL = os.environ.get("MCP_URL", "http://10.21.0.1/mcp")
 INTERVAL = 60
+USER_AGENT = "umbrel-alerts/1.1"
 CONFIG = os.path.join(STATE_DIR, "config.json")
 STATE = os.path.join(STATE_DIR, "state.json")
 
@@ -130,8 +131,10 @@ def snapshot(token):
 
 def post_json(url, secret, body, timeout=15):
     """POST JSON with the Bearer secret. Returns the HTTP status, or 0 if the hub was unreachable."""
+    # Cloudflare refuses Python's default "Python-urllib" user agent (error 1010).
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST", headers={
-        "Authorization": "Bearer " + secret.strip(), "Content-Type": "application/json"})
+        "Authorization": "Bearer " + secret.strip(), "Content-Type": "application/json",
+        "User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             r.read()

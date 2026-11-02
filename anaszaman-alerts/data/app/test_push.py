@@ -206,6 +206,7 @@ class RealHttp(unittest.TestCase):
 
             def do_POST(self):
                 seen["auth"] = self.headers.get("Authorization")
+                seen["ua"] = self.headers.get("User-Agent")
                 seen["body"] = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
                 self.send_response(503 if self.path == "/down" else 200)
                 self.end_headers()
@@ -217,7 +218,9 @@ class RealHttp(unittest.TestCase):
         self.addCleanup(server.shutdown)
         base = f"http://127.0.0.1:{server.server_port}"
         self.assertEqual(alerts.post_json(base + "/v1/alerts", SECRET, {"alerts": []}), 200)
-        self.assertEqual(seen, {"auth": "Bearer " + SECRET, "body": {"alerts": []}})
+        # Not Python-urllib: Cloudflare answers that user agent with 403 (error 1010).
+        self.assertEqual(seen, {"auth": "Bearer " + SECRET, "ua": "umbrel-alerts/1.1",
+                                "body": {"alerts": []}})
         self.assertEqual(alerts.post_json(base + "/down", SECRET, {}), 503)
         server.shutdown()
         server.server_close()
