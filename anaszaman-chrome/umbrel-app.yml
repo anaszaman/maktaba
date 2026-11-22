@@ -1,0 +1,35 @@
+manifestVersion: 1
+id: anaszaman-chrome
+category: networking
+name: Chrome
+version: "154.0.8037.97-kasm1.19.0"
+tagline: Google Chrome in a browser tab, running on your Umbrel
+icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-chrome/icon.png
+description: >-
+  Real Google Chrome (not Chromium) running on your Umbrel, streamed to any browser.
+  Chrome Web Store extensions that need Google Chrome work here.
+
+
+  - Your profile, logins and extensions are kept in the app's data folder
+
+  - The screen resizes to fit your browser window
+
+  - Behind your Umbrel login; nothing else is exposed
+
+
+  Chrome is capped at 1.5 GB of memory so heavy tabs can't starve other apps.
+  It runs the kasmweb/chrome image from Kasm Technologies, with a small nginx
+  front so it works over plain HTTP on your home network.
+developer: Google / Kasm Technologies
+website: https://hub.docker.com/r/kasmweb/chrome
+repo: https://github.com/kasmtech/workspaces-images
+support: https://github.com/anaszaman/maktaba/issues
+port: 8897
+gallery: []
+releaseNotes: "First release: Google Chrome 154 (kasmweb/chrome 1.19.0)."
+dependencies: []
+path: ""
+defaultUsername: ""
+deterministicPassword: false
+submitter: Anas Zaman
+submission: https://github.com/anaszaman/maktaba

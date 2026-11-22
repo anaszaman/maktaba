@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: anaszaman-chrome_proxy_1
+      APP_PORT: 80
+
+  # Plain-HTTP front for KasmVNC, which only speaks HTTPS. It logs in to KasmVNC
+  # for you, so the Umbrel login is the only prompt you see.
+  proxy:
+    image: nginx:1.27.3-alpine@sha256:814a8e88df978ade80e584cc5b333144b9372a8e3c98872d07137dbf3b44d0e4
+    restart: on-failure
+    entrypoint: sh
+    command: -c 'export KASM_AUTH=$$(printf "kasm_user:%s" "$$KASM_PW" | base64 | tr -d "\n"); exec /docker-entrypoint.sh nginx -g "daemon off;"'
+    environment:
+      KASM_PW: $APP_PASSWORD
+    volumes:
+      - ${APP_DATA_DIR}/data/nginx:/etc/nginx/templates:ro
+
+  chrome:
+    image: kasmweb/chrome:1.19.0@sha256:f415301cf454daa6693962246b674a806158cd184ee70742b219133fa8117773
+    restart: on-failure
+    shm_size: "1gb"
+    mem_limit: 1536m
+    environment:
+      VNC_PW: $APP_PASSWORD
+    volumes:
+      - ${APP_DATA_DIR}/data/home:/home/kasm-user
