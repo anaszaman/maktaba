@@ -2,7 +2,7 @@ manifestVersion: 1
 id: anaszaman-chrome
 category: networking
 name: Chrome
-version: "154.0.8037.97-kasm1.19.0"
+version: "154.0.8037.97-kasm1.19.0-1"
 tagline: Google Chrome in a browser tab, running on your Umbrel
 icon: https://raw.githubusercontent.com/anaszaman/maktaba/main/anaszaman-chrome/icon.png
 description: >-
@@ -17,7 +17,8 @@ description: >-
   - Behind your Umbrel login; nothing else is exposed
 
 
-  Chrome is capped at 1.5 GB of memory so heavy tabs can't starve other apps.
+  Chrome renders pages on your Umbrel's GPU and is capped at 6 GB of memory,
+  so heavy tabs can't starve other apps.
   It runs the kasmweb/chrome image from Kasm Technologies, with a small nginx
   front so it works over plain HTTP on your home network.
 developer: Google / Kasm Technologies
@@ -26,8 +27,12 @@ repo: https://github.com/kasmtech/workspaces-images
 support: https://github.com/anaszaman/maktaba/issues
 port: 8897
 gallery: []
-releaseNotes: "First release: Google Chrome 154 (kasmweb/chrome 1.19.0)."
+releaseNotes: >-
+  Faster, fewer freezes: Chrome now renders on the GPU instead of the CPU, gets
+  6 GB of memory (was 1.5 GB) and 2 GB of shared memory, and no longer swaps.
 dependencies: []
+permissions:
+  - GPU
 path: ""
 defaultUsername: ""
 deterministicPassword: false

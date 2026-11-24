@@ -21,8 +21,12 @@ services:
   chrome:
     image: kasmweb/chrome:1.19.0@sha256:f415301cf454daa6693962246b674a806158cd184ee70742b219133fa8117773
     restart: on-failure
-    shm_size: "1gb"
-    mem_limit: 1536m
+    # Chrome keeps its tab and GPU buffers in /dev/shm.
+    shm_size: "2gb"
+    # memswap_limit = mem_limit means no swap. A swapping Chrome freezes for
+    # seconds at a time; a crashed tab ("Aw, Snap") is far easier to live with.
+    mem_limit: 6g
+    memswap_limit: 6g
     environment:
       VNC_PW: $APP_PASSWORD
     volumes:
